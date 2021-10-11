@@ -1,6 +1,6 @@
 # tweets2telegram
 
-Listenes For The Spesific "Kripto Para" list and sends news tweets as message to me.  
+Listenes For The Spesific "Kripto Para" list and sends new tweets as message to me.  
 
 Change the list id as your wish. 
 
