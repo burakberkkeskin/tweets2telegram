@@ -39,7 +39,7 @@ slimbot.on("message", (message) => {
     }
   } else if (message.text.toLowerCase() == "/unsubscribe") {
     if (subscribedChatIds.includes(message.chat.id)) {
-      subscribedChatIds.push(message.chat.id);
+      subscribedChatIds = subscribedChatIds.filter(e => e !== message.chat.id);
       slimbot.sendMessage(message.chat.id, "Unsubscribed From Crypto News!");
     } else {
       slimbot.sendMessage(
