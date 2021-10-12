@@ -1,7 +1,6 @@
 const Slimbot = require("slimbot");
 const Twitter = require("twitter");
 const dbFunctions = require('./db')
-const slimbot = new Slimbot(telegram_api_key);
 
 const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 const {
@@ -18,6 +17,8 @@ const client = new Twitter({
   access_token_key: access_token,
   access_token_secret: access_token_secret,
 });
+
+const slimbot = new Slimbot(telegram_api_key);
 var subscribedChatIds = []
 
 function openSlimBot(){
