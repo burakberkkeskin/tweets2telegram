@@ -1,6 +1,8 @@
 const Slimbot = require("slimbot");
 const Twitter = require("twitter");
 const dbFunctions = require('./db')
+const slimbot = new Slimbot(telegram_api_key);
+
 const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 const {
   telegram_api_key,
@@ -8,10 +10,8 @@ const {
   consumer_secret,
   access_token,
   access_token_secret,
-  chat_id,
 } = require("./secret.json");
 
-const slimbot = new Slimbot(telegram_api_key);
 const client = new Twitter({
   consumer_key: consumer_key,
   consumer_secret: consumer_secret,

@@ -20,7 +20,7 @@ async function addChatId(message){
                 + currentdate.getHours() + ":"  
                 + currentdate.getMinutes() + ":" 
                 + currentdate.getSeconds();
-    await fs.appendFile('./log.txt', `${datetime} INFO:  ${message.chat.username} Subscribed\n`)
+    await fs.appendFile('./log.txt', `${datetime} INFO:  @${message.chat.username} Subscribed\n`)
 }
 
 async function removeChatId(message){
