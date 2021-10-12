@@ -1,4 +1,7 @@
 const Slimbot = require("slimbot");
+const Twitter = require("twitter");
+const dbFunctions = require('./db')
+const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 const {
   telegram_api_key,
   consumer_key,
@@ -7,52 +10,50 @@ const {
   access_token_secret,
   chat_id,
 } = require("./secret.json");
-const Twitter = require("twitter");
 
 const slimbot = new Slimbot(telegram_api_key);
-
 const client = new Twitter({
   consumer_key: consumer_key,
   consumer_secret: consumer_secret,
   access_token_key: access_token,
   access_token_secret: access_token_secret,
 });
+var subscribedChatIds = []
 
-////////////////////////////
-var subscribedChatIds = [];
-
-slimbot.on("message", (message) => {
-  if (message.text == "/start") {
-    slimbot.sendMessage(
-      message.chat.id,
-      "Welcome To Latest Important Crypto News\nSend /subscribe to subcribe the bot\nSend /unsubscribe to unsubscribe from the bot."
-    );
-  } else if (message.text.toLowerCase() == "/subscribe") {
-    if (!subscribedChatIds.includes(message.chat.id)) {
-      subscribedChatIds.push(message.chat.id);
-      slimbot.sendMessage(message.chat.id, "Subscribed To Crypto News!");
-    } else {
+function openSlimBot(){
+  slimbot.on("message", async (message) => {
+    if (message.text == "/start") {
       slimbot.sendMessage(
         message.chat.id,
-        "You Are Already Subscribed To Crypto News!"
+        "Welcome To Crypto News!\nSend /subscribe to subcribe the bot.\nSend /unsubscribe to unsubscribe from the bot.\nSend /help to get help"
       );
+    } else if (message.text.toLowerCase() == "/subscribe") {
+      if (!subscribedChatIds.includes(message.chat.id)) {
+        await dbFunctions.addChatId(message)
+        subscribedChatIds = await dbFunctions.getChatIds();
+        slimbot.sendMessage(message.chat.id, "Subscribed To Crypto News!");
+      } else {
+        slimbot.sendMessage(
+          message.chat.id,
+          "You Are Already Subscribed To Crypto News!"
+        );
+      }
+    } else if (message.text.toLowerCase() == "/unsubscribe") {
+      if (subscribedChatIds.includes(message.chat.id)) {
+        await dbFunctions.removeChatId(message)
+        subscribedChatIds = await dbFunctions.getChatIds()
+        slimbot.sendMessage(message.chat.id, "Unsubscribed From Crypto News!");
+      } else {
+        slimbot.sendMessage(
+          message.chat.id,
+          "You Haven't Subscribed To Crypto News!"
+        );
+      }
+    } else if (message.text.toLowerCase()=='/help'){
+        slimbot.sendMessage(message.chat.id, "Send /subscribe to subcribe the bot\nSend /unsubscribe to unsubscribe from the bot.");
     }
-  } else if (message.text.toLowerCase() == "/unsubscribe") {
-    if (subscribedChatIds.includes(message.chat.id)) {
-      subscribedChatIds = subscribedChatIds.filter(e => e !== message.chat.id);
-      slimbot.sendMessage(message.chat.id, "Unsubscribed From Crypto News!");
-    } else {
-      slimbot.sendMessage(
-        message.chat.id,
-        "You Haven't Subscribed To Crypto News!"
-      );
-    }
-  }
-});
-
-///////////////////////////////
-
-const delay = (ms) => new Promise((res) => setTimeout(res, ms));
+  });
+}
 
 async function getLastTweet() {
   var savedTweet = "";
@@ -112,8 +113,10 @@ function titleCase(str) {
   return splitStr.join(" ");
 }
 
-function main() {
+async function main() {
+  subscribedChatIds = await dbFunctions.getChatIds();
   console.log("Listening Updates For Crypto News...");
+  openSlimBot()
   slimbot.startPolling();
   getLastTweet();
 }
